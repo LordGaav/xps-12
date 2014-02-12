@@ -31,10 +31,16 @@
 	date +%s > /tmp/last_flipscreen_timestamp
 
 	# Compute the current rotation
-	current_rotation=$(xrandr -q --verbose | grep eDP1 | cut -b45-50)
+	current_rotation=$(xrandr -q --verbose | grep eDP1 | cut -d" " -f6)
 	if [ $current_rotation == "normal" ]; then
+		xrandr -o right
+		xinput --set-prop "$digitizer" 'Coordinate Transformation Matrix' 0 1 0 -1 0 1 0 0 1
+	elif [ $current_rotation == "right" ]; then
 		xrandr -o inverted
 		xinput --set-prop "$digitizer" 'Coordinate Transformation Matrix' -1 0 1 0 -1 1 0 0 1
+	elif [ $current_rotation == "inverted" ]; then
+		xrandr -o left
+		xinput --set-prop "$digitizer" 'Coordinate Transformation Matrix' 0 -1 1 1 0 0 0 0 1
 	else
 		xrandr -o normal
 		xinput --set-prop "$digitizer" 'Coordinate Transformation Matrix' 1 0 0 0 1 0 0 0 1
