@@ -6,6 +6,7 @@
 # http://blog.jay.sh/ubuntu-12-10-on-the-dell-xps-12/ for more information.
 
 (
+	digitizer="ATML1000:00 03EB:842F"
 	# Attempt to get an exclusive lock on /tmp/last_flipscreen_timestamp.
 	# If it fails, we exit immediately - this works around the 
 	# problem of Ubuntu executing this script twice (sometimes).
@@ -13,14 +14,14 @@
 
 	# Get the timestamp of the last time the screen was rotated. The
 	# existence check is useful for the first run, or after a reboot
-	# (for /tmp's which are mounted via tmpfs).
+	# (for /tmps which are mounted via tmpfs).
 	if [ -e /tmp/last_flipscreen_timestamp ]; then
 		last_screen_rotation=$( cat /tmp/last_flipscreen_timestamp );
 	else
 		last_screen_rotation=0;
 	fi
 
-	# If it's been too soon since the last rotation, ignore the request.
+	# If its been too soon since the last rotation, ignore the request.
 	seconds_since_last_rotate=$(( $(date +%s) - $last_screen_rotation ));
 	if [ $seconds_since_last_rotate -lt 5 ]; then
 		exit 1
@@ -30,13 +31,13 @@
 	date +%s > /tmp/last_flipscreen_timestamp
 
 	# Compute the current rotation
-	current_rotation=$(xrandr -q --verbose | grep eDP1 | cut -b37-43)
+	current_rotation=$(xrandr -q --verbose | grep eDP1 | cut -b45-50)
 	if [ $current_rotation == "normal" ]; then
 		xrandr -o inverted
-		xinput --set-prop 'Atmel Atmel maXTouch Digitizer' 'Evdev Axis Inversion' 1 1
+		xinput --set-prop "$digitizer" 'Coordinate Transformation Matrix' -1 0 1 0 -1 1 0 0 1
 	else
 		xrandr -o normal
-		xinput --set-prop 'Atmel Atmel maXTouch Digitizer' 'Evdev Axis Inversion' 0 0
+		xinput --set-prop "$digitizer" 'Coordinate Transformation Matrix' 1 0 0 0 1 0 0 0 1
 	fi
 	
 ) 9>/tmp/last_flipscreen_timestamp.lock
