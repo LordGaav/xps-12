@@ -23,7 +23,7 @@
 
 	# If its been too soon since the last rotation, ignore the request.
 	seconds_since_last_rotate=$(( $(date +%s) - $last_screen_rotation ));
-	if [ $seconds_since_last_rotate -lt 5 ]; then
+	if [ $seconds_since_last_rotate -lt 3 ]; then
 		exit 1
 	fi
 
